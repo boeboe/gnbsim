@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+	"net/http"
+	"time"
+
 	"github.com/hhorai/gnbsim/encoding/gtp"
 	"github.com/hhorai/gnbsim/encoding/nas"
 	"github.com/hhorai/gnbsim/encoding/ngap"
 	"github.com/ishidawataru/sctp"
 	"github.com/vishvananda/netlink"
-	"log"
-	"net"
-	"net/http"
-	"time"
 )
 
 type testSession struct {
@@ -276,7 +277,10 @@ func (t *testSession) setupN3Tunnel() (gtpConn *net.UDPConn, tun *netlink.Tuntap
 func addTunnel(tunname string) (tun *netlink.Tuntap, err error) {
 
 	link, _ := netlink.LinkByName(tunname)
-	netlink.LinkDel(link) // Delete first.
+
+	if link != nil {
+		netlink.LinkDel(link) // Delete first.
+	}
 
 	tun = &netlink.Tuntap{
 		LinkAttrs: netlink.LinkAttrs{Name: tunname},
